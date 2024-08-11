@@ -26,7 +26,7 @@ class DataRetriever:
             'ts': ts,
             'apikey': self.public_key,
             'hash': hash_md5,
-            'limit': 10  # Cambia el límite según tus necesidades
+            'limit': 100
         }
 
         try:
