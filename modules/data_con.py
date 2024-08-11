@@ -1,84 +1,62 @@
+import requests
 import pandas as pd
 import logging
-from sqlalchemy import create_engine
-from sqlalchemy.exc import SQLAlchemyError
+import hashlib
+import time
+from io import StringIO
 
 logging.basicConfig(
     filename='app.log',
     filemode='a',
-    format='%(asctime)s :: DataConnectionModule-> %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s :: GetDataModule-> %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO)
 
-class DataConn:
-    def __init__(self, config: dict, schema: str):
-        self.config = config
-        self.schema = schema
-        self.db_engine = None
+class DataRetriever:
+    def __init__(self, public_key: str, private_key: str) -> None:
+        self.endpoint: str = "https://gateway.marvel.com/v1/public/characters"
+        self.public_key: str = public_key
+        self.private_key: str = private_key
 
-    def get_conn(self):
-        username = self.config.get('REDSHIFT_USERNAME')
-        password = self.config.get('REDSHIFT_PASSWORD')
-        host = self.config.get('REDSHIFT_HOST')
-        port = self.config.get('REDSHIFT_PORT', '5439')
-        dbname = self.config.get('REDSHIFT_DBNAME')
+    def get_data(self):
+        ts = str(time.time())
+        hash_string = ts + self.private_key + self.public_key
+        hash_md5 = hashlib.md5(hash_string.encode('utf-8')).hexdigest()
 
-        # Construir la URL de conexión
-        connection_url = f"postgresql+psycopg2://{username}:{password}@{host}:{port}/{dbname}"
-        self.db_engine = create_engine(connection_url)
-
-        try:
-            with self.db_engine.connect() as connection:
-                result = connection.execute('SELECT 1;')
-                if result:
-                    logging.info("Connection created")
-                    return
-        except SQLAlchemyError as e:
-            logging.error(f"Failed to create connection: {e}")
-            raise
-
-    def check_table_exists(self, table_name: str) -> bool:
-        try:
-            with self.db_engine.connect() as connection:
-                query_checker = f"""
-                    SELECT 1 FROM information_schema.tables 
-                    WHERE table_schema = '{self.schema}'
-                    AND table_name = '{Marvel_Characters}';
-                """
-                result = connection.execute(query_checker).fetchone()
-
-                if not result:
-                    logging.error(f"Table {table_name} does not exist in schema {self.schema}.")
-                    raise ValueError(f"Table {table_name} does not exist in schema {self.schema}.")
-                
-                logging.info(f"Table {table_name} exists in schema {self.schema}.")
-                return True
-
-        except SQLAlchemyError as e:
-            logging.error(f"Failed to check if table {table_name} exists: {e}")
-            raise
-
-    def upload_data(self, data: pd.DataFrame, table: str):
-        if self.db_engine is None:
-            logging.warning("Connection has not been established. Attempting to establish connection...")
-            self.get_conn()
+        params = {
+            'ts': ts,
+            'apikey': self.public_key,
+            'hash': hash_md5,
+            'limit': 10  # Cambia el límite según tus necesidades
+        }
 
         try:
-            data.to_sql(
-                table,
-                con=self.db_engine,
-                schema=self.schema,
-                if_exists='append',
-                index=False
-            )
+            response = requests.get(self.endpoint, params=params)
+            response.raise_for_status()
+            response_json = response.json()
 
-            logging.info(f"Data from DataFrame has been uploaded to {self.schema}.{table} in Redshift.")
-        except SQLAlchemyError as e:
-            logging.error(f"Failed to upload data to {self.schema}.{table}:\n{e}")
+            if 'data' in response_json and 'results' in response_json['data']:
+                data_by_list_api = pd.DataFrame(response_json['data']['results'])
+                # columnas necesarias para la ingestión en las tablas
+                cols = ["id", "name", "description", "modified", "resourceURI"]
+                logging.info(f"{cols} -> to be inserted")
+                data = data_by_list_api[cols]
+
+                # Procesar y registrar la información de los datos
+                buffer = StringIO()
+                data.info(buf=buffer)
+                s = buffer.getvalue()
+                logging.info(s)
+                logging.info("Data created")
+                return data
+
+            else:
+                logging.error("Invalid response structure from API")
+                return pd.DataFrame()
+
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Request failed: {e}")
             raise
 
-    def close_conn(self):
-        if self.db_engine:
-            self.db_engine.dispose()
-            logging.info("Connection to Redshift closed.")
-        else:
-            logging.warning("No active connection to close.")
+        except Exception as e:
+            logging.error(f"Not able to process the data from the API\n{e}")
+            raise
