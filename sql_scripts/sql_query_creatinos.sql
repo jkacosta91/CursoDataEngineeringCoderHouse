@@ -20,8 +20,8 @@ CREATE TABLE jkacosta91_coderhouse.anime (
     popularity INTEGER,
     members INTEGER,
     favorites INTEGER,
-    synopsis TEXT,
-    background TEXT,
+    synopsis VARCHAR(MAX),
+    background VARCHAR(MAX), 
     season VARCHAR(20),
     year INTEGER
 );

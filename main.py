@@ -24,19 +24,19 @@ def main():
     schema:str = "jkacosta91_coderhouse"
     table:str = "anime"
 
-    data_conn = DataConn(user_credentials, schema)
+    data_con = DataConn(user_credentials, schema)
     data_retriever = DataRetriever()  
 
     try:
         data = data_retriever.get_data(page=1, limit=10)  
-        data_conn.upload_data(data, table)
+        data_con.upload_data(data, table)
         logging.info(f"Data uploaded to -> {schema}.{table}")
 
     except Exception as e:
         logging.error(f"Not able to upload data\n{e}")
 
     finally:
-        data_conn.close_conn()
+        data_con.close_conn()
 
 if __name__ == "__main__":
     main()
