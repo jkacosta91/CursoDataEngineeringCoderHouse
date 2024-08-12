@@ -1,8 +1,8 @@
 import os
 import logging
-from modules.data_conn import DataConn # type: ignore
-from modules.data_retriever import DataRetriever # type: ignore
-from dotenv import load_dotenv # type: ignore
+from modules.data_con import DataConn
+from modules.get_data_from_api import DataRetriever
+from dotenv import load_dotenv
 
 logging.basicConfig(
     filename='app.log',
@@ -22,16 +22,13 @@ def main():
     }
 
     schema = "jkacosta91_coderhouse"
-    table = "Marvel_Characters"
+    table = "anime"
 
     data_conn = DataConn(user_credentials, schema)
-    data_retriever = DataRetriever(
-        public_key=os.getenv('MARVEL_PUBLIC_KEY'),
-        private_key=os.getenv('MARVEL_PRIVATE_KEY')
-    )
+    data_retriever = DataRetriever()  
 
     try:
-        data = data_retriever.get_data()
+        data = data_retriever.get_data(page=1, limit=10)  
         data_conn.upload_data(data, table)
         logging.info(f"Data uploaded to -> {schema}.{table}")
 

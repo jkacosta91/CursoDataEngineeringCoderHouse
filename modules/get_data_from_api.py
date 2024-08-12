@@ -1,7 +1,6 @@
 import requests
 import pandas as pd
 import logging
-import hashlib
 import time
 from io import StringIO
 
@@ -12,21 +11,13 @@ logging.basicConfig(
     level=logging.INFO)
 
 class DataRetriever:
-    def __init__(self, public_key: str, private_key: str) -> None:
-        self.endpoint: str = "https://gateway.marvel.com/v1/public/characters"
-        self.public_key: str = public_key
-        self.private_key: str = private_key
+    def __init__(self) -> None:
+        self.endpoint: str = "https://api.jikan.moe/v4/anime"
 
-    def get_data(self):
-        ts = str(time.time())
-        hash_string = ts + self.private_key + self.public_key
-        hash_md5 = hashlib.md5(hash_string.encode('utf-8')).hexdigest()
-
+    def get_data(self, page: int = 1, limit: int = 25):
         params = {
-            'ts': ts,
-            'apikey': self.public_key,
-            'hash': hash_md5,
-            'limit': 100
+            'page': page,
+            'limit': limit
         }
 
         try:
@@ -34,11 +25,14 @@ class DataRetriever:
             response.raise_for_status()
             response_json = response.json()
 
-            if 'data' in response_json and 'results' in response_json['data']:
-                data_by_list_api = pd.DataFrame(response_json['data']['results'])
+            if 'data' in response_json:
+                data_by_list_api = pd.DataFrame(response_json['data'])
+
                 # columnas necesarias para la ingestión en las tablas
-                cols = ["id", "name", "description", "modified", "resourceURI", "comics_available",  "series_available",
-                    "stories_available", "events_available", "urls_type", "urls_url"]
+                cols = ["mal_id", "url", "approved", "title","title_english", 
+                        "title_japanese", "type", "source", "episodes","status", "airing", 
+                        "duration", "rating", "score", "scored_by", "rank", "popularity", "members", "favorites", 
+                        "synopsis", "background", "season", "year"]
                 logging.info(f"{cols} -> to be inserted")
                 data = data_by_list_api[cols]
 
