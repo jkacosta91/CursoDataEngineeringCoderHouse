@@ -1,15 +1,27 @@
-DROP TABLE IF EXISTS jkacosta91_coderhouse.Marvel_Characters;
+DROP TABLE IF EXISTS jkacosta91_coderhouse.anime;
 
-CREATE TABLE jkacosta91_coderhouse.Marvel_Characters (
-    id INTEGER NOT NULL,
-    name VARCHAR(250),
-    description TEXT,
-    modified TIMESTAMP,
-    resourceURI VARCHAR(500),
-    comics_available INTEGER,
-    series_available INTEGER,
-    stories_available INTEGER,
-    events_available INTEGER,
-    urls_type VARCHAR(100),
-    urls_url VARCHAR(500)
+CREATE TABLE jkacosta91_coderhouse.anime (
+    mal_id INTEGER NOT NULL,
+    url VARCHAR(500),
+    approved BOOLEAN,
+    title VARCHAR(255),
+    title_english VARCHAR(255),
+    title_japanese VARCHAR(255),
+    type VARCHAR(50),
+    source VARCHAR(255),
+    episodes INTEGER,
+    status VARCHAR(50),
+    airing BOOLEAN,
+    duration VARCHAR(50),
+    rating VARCHAR(50),
+    score INTEGER,
+    scored_by INTEGER,
+    rank INTEGER,
+    popularity INTEGER,
+    members INTEGER,
+    favorites INTEGER,
+    synopsis TEXT,
+    background TEXT,
+    season VARCHAR(20),
+    year INTEGER
 );
