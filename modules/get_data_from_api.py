@@ -11,7 +11,7 @@ logging.basicConfig(
     level=logging.INFO)
 
 class DataRetriever:
-    def __init__(self) -> None:
+    def __init__(self, user:str = "jkacosta91", repos:str = "repos" ) -> None:
         self.endpoint: str = "https://api.jikan.moe/v4/anime"
 
     def get_data(self, page: int = 1, limit: int = 25):

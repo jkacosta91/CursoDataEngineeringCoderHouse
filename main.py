@@ -21,8 +21,8 @@ def main():
         "REDSHIFT_DBNAME": os.getenv('REDSHIFT_DBNAME')
     }
 
-    schema = "jkacosta91_coderhouse"
-    table = "anime"
+    schema:str = "jkacosta91_coderhouse"
+    table:str = "anime"
 
     data_conn = DataConn(user_credentials, schema)
     data_retriever = DataRetriever()  
