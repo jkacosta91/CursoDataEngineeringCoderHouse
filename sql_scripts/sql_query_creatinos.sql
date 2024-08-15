@@ -1,7 +1,7 @@
 DROP TABLE IF EXISTS jkacosta91_coderhouse.anime;
 
 CREATE TABLE jkacosta91_coderhouse.anime (
-    mal_id INTEGER NOT NULL,
+    mal_id INTEGER NOT NULL PRIMARY KEY,
     url VARCHAR(500),
     approved BOOLEAN,
     title VARCHAR(255),

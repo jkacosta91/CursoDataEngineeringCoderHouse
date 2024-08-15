@@ -1,3 +1,0 @@
-2024-08-12 09:53:58,662 :: GetDataModule-> root - INFO - ['mal_id', 'title', 'synopsis', 'type', 'episodes', 'score', 'start_date', 'end_date', 'status', 'url'] -> to be inserted
-2024-08-12 09:53:58,667 :: GetDataModule-> root - ERROR - Not able to process the data from the API
-"['start_date', 'end_date'] not in index"
