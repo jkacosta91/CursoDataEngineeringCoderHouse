@@ -17,14 +17,18 @@ config = {
 
 # Definir argumentos por defecto
 default_args = {
-    'owner': 'JKACOSTA',
-    'retries': 5,
-    'retry_delay': timedelta(minutes=2)
+    'owner': 'jkacosta91',
+    'depends_on_past': False,
+    'start_date': datetime.now(),
+    'retries': 1,
+    'retry_delay': timedelta(minutes=1),
+    'on_failure_callback': email_notification.handle_dag_status,
+    'on_success_callback': email_notification.handle_dag_status,
 }
 
 # Crear el DAG
 dag = DAG(
-    dag_id="desafio3_pipeline",
+    dag_id="curso_data_engineering",
     default_args=default_args,
     description="DAG para consumir API y vaciar datos en Redshift",
     start_date=datetime(2024, 8, 1),
