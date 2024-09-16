@@ -42,7 +42,7 @@ Este proyecto de ingeniería de datos está diseñado para extraer, transformar 
 
 6. **`README.md`**: Documento que proporciona una visión general del proyecto, incluyendo instrucciones de uso y detalles de configuración.
 
-## Funciones y tareas del DAG 
+## Funciones y tareas del DAG
 
 El DAG `curso_data_engineering` automatiza un proceso ETL (Extracción, Transformación y Carga) de datos financieros ejecutandolo diariamente.
 
